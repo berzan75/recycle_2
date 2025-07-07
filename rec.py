@@ -8,7 +8,7 @@ pygame.display.set_caption("recycle game number 2")
 WIDTH=900
 HEIGHT=700
 
-s=pygame.display.set_mode[WIDTH,HEIGHT]
+s=pygame.display.set_mode([WIDTH,HEIGHT])
 
 def change_background(img):
     background= pygame.image.load(img)
@@ -16,21 +16,21 @@ def change_background(img):
     s.blit(bg,(0,0))
     
 
-class Bin(pygame.Sprite.Sprite):
+class Bin(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image=pygame.image.load("bin.png").convert_alpha()
         self.image=pygame.transform.scale(self.image,(40,60))
         self.rect=self.image.get_rect()
 
-class Recyclable(pygame.Sprite.Sprite):
+class Recyclable(pygame.sprite.Sprite):
     def __init__(self,img):
         super().__init__()
         self.image=pygame.image.load(img).convert_alpha()
         self.image=pygame.transform.scale(self.image,(40,40))
         self.rect=self.image.get_rect()
 
-class Plastic(pygame.Sprite.Sprite):
+class Plastic(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image=pygame.image.load("plastic.png").convert_alpha()
@@ -75,9 +75,44 @@ text=myfont.render("Score ="+str(score),True,WHITE)
 while playing:
     clock.tick(60)
 
-    time_elapsed = time.time()-start_time()
+    time_elapsed = time.time()-start_time
     if time_elapsed > 60:
         if score > 40:
             text=myfont.render("you won")
         else:
             text=myfont.render("better luck next time")
+    else:
+        change_background("background.png")
+        text=timing.render("time_elapsed:"+str(60-int(time_elapsed)),True,WHITE)
+        s.blit(text,(10,10))
+    
+        keys=pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
+            if bin.rect.y>0:
+                bin.rect.y-=5
+        if keys[pygame.K_DOWN]:
+            if bin.rect.y<690:
+                bin.rect.y+=6
+        if keys[pygame.K_LEFT]:
+            if bin.rect.x>0:
+                bin.rect.x-=5
+        if keys[pygame.K_RIGHT]:
+            if bin.rect.x<890:
+                bin.rect.x+=5
+        
+        item_hit_list=pygame.sprite.spritecollide(bin, item_list,True)
+        plastic_hit_list=pygame.sprite.spritecollide(bin,plastic_list,True)
+
+        for i in item_hit_list:
+            score+=1
+            text=myfont.render("score:"+str(score),True,WHITE)
+        
+        for i in plastic_list:
+            score-=5
+            text=myfont.render("score:"+str(score),True,WHITE)
+        s.blit(text,(10,690))
+
+        allsprites.draw(s)
+        
+    pygame.display.update()
+pygame.quit()
